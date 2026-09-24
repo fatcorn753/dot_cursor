@@ -6,31 +6,45 @@
     :root { color-scheme: light dark; }
     body { width: 280px; margin: 0; padding: 16px; font: 13px -apple-system, sans-serif; }
     h1 { font-size: 14px; margin: 0 0 12px; }
+    h2 { font-size: 13px; margin: 0; }
     hr { border: none; border-top: 1px solid rgba(128,128,128,.3); margin: 14px 0; }
 
     fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
     fieldset:disabled { opacity: .4; }
 
-    .row { margin-bottom: 14px; }
+    .row { margin-bottom: 12px; }
     label { display: block; margin-bottom: 6px; font-weight: 600; }
-    .toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-    .toggle.sub { font-weight: normal; margin: 10px 0 0; }
+    .toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .toggle.sub { font-weight: normal; margin: 8px 0 0; }
 
     .line { display: flex; gap: 8px; align-items: center; }
-    input[type=range] { flex: 1; }
+    input[type=range] { flex: 1; min-width: 0; }
     input[type=number] { width: 64px; padding: 3px 4px; }
     input[type=color] { width: 40px; height: 28px; padding: 0; border: none; background: none; }
     .rgb { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
     .rgb span { width: 10px; }
     .rgb input { width: 52px; }
     .hint { font-size: 11px; opacity: .6; margin-top: 4px; }
-    button { width: 100%; padding: 6px; margin-top: 4px; }
+
+    button { padding: 4px 8px; }
+    #reset { width: 100%; padding: 6px; }
+
+    /* 追いかけるドットのカード */
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .card { border: 1px solid rgba(128,128,128,.35); border-radius: 8px; margin-bottom: 10px; }
+    .card-head { display: flex; gap: 6px; align-items: center; padding: 6px; }
+    .card-head .name { flex: 1; min-width: 0; padding: 3px 6px; font-weight: 600; }
+    .fold { width: 26px; padding: 4px 0; }
+    .fold::before { content: "▾"; display: inline-block; transition: rotate .15s; }
+    .card.collapsed .fold::before { rotate: -90deg; }
+    .card-body { padding: 4px 10px 2px; }
+    .card.collapsed .card-body { display: none; }
   </style>
 </head>
 <body>
   <h1>Dot Cursor 設定</h1>
 
-  <!-- 入力欄のIDは defaults.js の設定名と同じにしてある -->
+  <!-- メインのドット。入力欄のIDは defaults.js の設定名と同じ -->
   <label class="toggle">
     <input type="checkbox" id="dotCursor">
     メインのカーソルをドットにする
@@ -61,45 +75,66 @@
 
   <hr>
 
-  <div class="row">
-    <label>追いかけるドットの大きさ (px)</label>
-    <div class="line">
-      <input type="range" id="size" min="4" max="60" step="1">
-      <input type="number" id="sizeNum" min="4" max="60" step="1">
-    </div>
+  <!-- 追いかけるドット（カードは popup.js が作る） -->
+  <div class="section-head">
+    <h2>追いかけるドット</h2>
+    <button type="button" id="addFollower">＋ 追加</button>
   </div>
-
-  <div class="row">
-    <label>追いかける速さ</label>
-    <div class="line">
-      <input type="range" id="speed" min="0.01" max="1" step="0.01">
-      <input type="number" id="speedNum" min="0.01" max="1" step="0.01">
-    </div>
-    <div class="hint">大きいほど速く追いつきます（0.01〜1）</div>
-  </div>
+  <div id="followerList"></div>
+  <p id="emptyHint" class="hint" hidden>追いかけるドットはありません。「＋ 追加」で作れます。</p>
 
   <hr>
 
-  <label class="toggle">
-    <input type="checkbox" id="hoverEnabled">
-    リンクやボタンの上で大きくする
-  </label>
+  <button id="reset">すべてデフォルトに戻す</button>
 
-  <fieldset id="hoverBox">
-    <div class="row">
-      <label>拡大の倍率</label>
-      <div class="line">
-        <input type="range" id="hoverScale" min="1" max="4" step="0.1">
-        <input type="number" id="hoverScaleNum" min="1" max="4" step="0.1">
+  <!-- カードの雛形。data-key は followers の設定名と同じ -->
+  <template id="followerTemplate">
+    <section class="card">
+      <div class="card-head">
+        <button type="button" class="fold" title="開閉"></button>
+        <input type="text" class="name" maxlength="20" placeholder="名前">
+        <button type="button" class="del">削除</button>
       </div>
-    </div>
-    <label class="toggle sub">
-      <input type="checkbox" id="hoverInputs">
-      テキスト入力欄も対象にする
-    </label>
-  </fieldset>
 
-  <button id="reset">デフォルトに戻す</button>
+      <div class="card-body">
+        <div class="row">
+          <label>大きさ (px)</label>
+          <div class="line">
+            <input type="range" data-key="size" min="4" max="60" step="1">
+            <input type="number" data-key="size" min="4" max="60" step="1">
+          </div>
+        </div>
+
+        <div class="row">
+          <label>追いかける速さ</label>
+          <div class="line">
+            <input type="range" data-key="speed" min="0.01" max="1" step="0.01">
+            <input type="number" data-key="speed" min="0.01" max="1" step="0.01">
+          </div>
+          <div class="hint">大きいほど速く追いつきます（0.01〜1）</div>
+        </div>
+
+        <label class="toggle">
+          <input type="checkbox" data-key="hoverEnabled">
+          リンクやボタンの上で大きくする
+        </label>
+
+        <fieldset class="hover-box">
+          <div class="row">
+            <label>拡大の倍率</label>
+            <div class="line">
+              <input type="range" data-key="hoverScale" min="1" max="4" step="0.1">
+              <input type="number" data-key="hoverScale" min="1" max="4" step="0.1">
+            </div>
+          </div>
+          <label class="toggle sub">
+            <input type="checkbox" data-key="hoverInputs">
+            テキスト入力欄も対象にする
+          </label>
+        </fieldset>
+      </div>
+    </section>
+  </template>
 
   <script src="defaults.js"></script>
   <script src="popup.js"></script>

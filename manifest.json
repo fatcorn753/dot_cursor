@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Dot Cursor",
-  "version": "1.3",
+  "version": "1.4",
   "permissions": ["storage", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
