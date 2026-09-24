@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root { color-scheme: light dark; }
+    body { width: 280px; margin: 0; padding: 16px; font: 13px -apple-system, sans-serif; }
+    h1 { font-size: 14px; margin: 0 0 12px; }
+    .row { margin-bottom: 14px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    .line { display: flex; gap: 8px; align-items: center; }
+    input[type=range] { flex: 1; }
+    input[type=number] { width: 64px; padding: 3px 4px; }
+    input[type=color] { width: 40px; height: 28px; padding: 0; border: none; background: none; }
+    .rgb { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+    .rgb span { width: 10px; }
+    .rgb input { width: 52px; }
+    .hint { font-size: 11px; opacity: .6; margin-top: 4px; }
+    button { width: 100%; padding: 6px; margin-top: 4px; }
+
+    .toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-weight: 600; }
+    .disabled { opacity: .4; }
+  </style>
+</head>
+<body>
+  <h1>Dot Cursor 設定</h1>
+  <label class="toggle">
+    <input type="checkbox" id="dotToggle">
+    メインのカーソルをドットにする
+  </label>
+
+
+  <div class="row" id="colorRow">
+    <label>メインの色</label>
+    <div class="line">
+      <input type="color" id="colorPicker">
+      <span class="hint" style="margin:0">パレットから選ぶ</span>
+    </div>
+    <div class="rgb">
+      <span>R</span><input type="number" id="r" min="0" max="255">
+      <span>G</span><input type="number" id="g" min="0" max="255">
+      <span>B</span><input type="number" id="b" min="0" max="255">
+    </div>
+  </div>
+
+  <div class="row">
+    <label>追いかけるドットの大きさ (px)</label>
+    <div class="line">
+      <input type="range" id="sizeRange" min="4" max="60" step="1">
+      <input type="number" id="sizeNum" min="4" max="60" step="1">
+    </div>
+  </div>
+
+  <div class="row">
+    <label>追いかける速さ</label>
+    <div class="line">
+      <input type="range" id="speedRange" min="0.01" max="1" step="0.01">
+      <input type="number" id="speedNum" min="0.01" max="1" step="0.01">
+    </div>
+    <div class="hint">大きいほど速く追いつきます（0.01〜1）</div>
+  </div>
+
+  <button id="reset">デフォルトに戻す</button>
+  <script src="popup.js"></script>
+</body>
+</html>
